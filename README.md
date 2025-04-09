@@ -1,51 +1,47 @@
-# поиск связей волновым методом
-Grapf = [[0,1], [0,2], [0,3], [2,3], [4,5], [1, 6], [6, 7]]
+# Определение структуры графа
+G = {
+    0: {'weight': 2},  # Вершина 0 с весом 2 кг
+    1: {'weight': 3},  # Вершина 1 с весом 3 кг
+    3: {'weight': 10},  # Вершина 3 с весом 10 кг
+    2: {'weight': None},
+    8: {'weight': None},
+    4: {'weight': None},
+    5: {'weight': None},
+    6: {'weight': None}
+}
 
-def search_connection(a, b, graph):
-    start = a
-    end = b
-    level = 1
-    main_node = 0
-    current_node = 0
-    matrixOfConnections = initialize_matrix(count_nodes(graph)[1])
-    update_matrix(matrixOfConnections, graph, level, current_node, main_node)
-    level += 1
-    for i in matrixOfConnections[main_node]:
-        if i == level:
-            current_node = matrixOfConnections[main_node].index(i)
-            update_matrix(matrixOfConnections, graph, level, current_node, main_node)
+def find_vertex_with_extra_weight(G, extra_weight):
+    """Функция находит вершину с заданным лишним весом."""
+    for vertex, data in G.items():
+        if 'weight' in data and data['weight'] == extra_weight:
+            return vertex
+    return None
 
-    return matrixOfConnections
+def sort_vertices_by_weight(G):
+    """Функция сортирует вершины по весу."""
+    # Преобразование None в максимальное возможное значение для правильной сортировки
+    weights = []
+    for vertex, data in G.items():
+        weight = data.get('weight')
+        if weight is None:
+            weight = float('inf')  # Для вершин с неизвестным весом используем бесконечность
+        weights.append((vertex, weight))
+    
+    return sorted(weights, key=lambda x: x[1])  # Сортируем по второму элементу кортежа (весу)
 
-def count_nodes(graph):
-    amount_of_nodes = list(set([i for l in graph for i in l]))
-    return amount_of_nodes, len(amount_of_nodes) # в amount_of_nodes соответствие номеров узлов по факту инедексам(номинальный номер узла)
+# Поиск вершины с лишним весом в 10 кг
+extra_weight = 10
+result_vertex = find_vertex_with_extra_weight(G, extra_weight)
+if result_vertex is not None:
+    print(f"Вершина с лишним весом {extra_weight} кг: {result_vertex}")
+else:
+    print(f"Вершина с лишним весом {extra_weight} кг не найдена.")
 
-def edge_exsist(current_node, next_node, graph):
-    for i in graph:
-        if (current_node in i) and (next_node in i):
-            return True
-        else:
-            continue
-    return False
-
-def initialize_matrix(amount_of_nodes):
-    matrix = []
-    for i in range(amount_of_nodes):
-        array = [0 for _ in range(amount_of_nodes)]
-        array[i] = 1
-        matrix.append(array)
-    return matrix
-
-def update_matrix(matrixOfConnections, graph, level, current_node, main_node):
-    nodes = count_nodes(graph)[0]
-    for i in nodes:
-        if edge_exsist(current_node, i, graph):
-            if main_node == i or current_node == i:
-                continue
-            matrixOfConnections[main_node][i] = level + 1
-
-
-
-for i in search_connection(1, 2, Grapf):
-    print(i)
+# Сортировка вершин по весу
+sorted_vertices = sort_vertices_by_weight(G)
+print("\nОтсортированные вершины по весу:")
+for vertex, weight in sorted_vertices:
+    if weight != float('inf'):  # Если вес не равен бесконечности, значит он известен
+        print(f"{vertex}: {weight} кг")
+    else:
+        print(f"{vertex}: вес неизвестен")
